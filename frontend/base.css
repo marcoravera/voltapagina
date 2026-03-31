@@ -1,0 +1,60 @@
+body {
+    display: flex;
+    justify-content: center;
+    background-color: #3e7e63;
+    font-family: Verdana, Helvetica, sans-serif;
+}
+
+.central-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+#logo{
+    margin-bottom: 5px;
+    border: 1px solid black;
+    width: 100%;
+}
+input, select {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    margin-bottom: 5px;
+}
+input:focus, select:focus {
+    border-color: #3e7e63;
+}
+
+option{
+    font-family: Verdana, Helvetica, sans-serif;
+}
+
+.btnSubmit {
+    width: 100%;
+    padding: 12px;
+    background-color: #3e7e63;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.btnSubmit:hover {
+    background-color: #005232;
+}

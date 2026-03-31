@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La mia libreria</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bootstrap-icons.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <link href="base.css" rel="stylesheet">
+    <style>
+        .central-container {max-width: 90vw; height: 100%;}
+        .bigbutton { width: 150px; height: 75px; padding: 12px; background-color: #3e7e63; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.2s;}
+        .bigbutton:hover {background-color: #2d5d49;}
+        .gobackcontainer {position: fixed; top: 20px; left: 20px; z-index: 1050; }
+    </style>
+</head>
+<body>
+<div class="gobackcontainer">
+    <a href="/dashboard" class="btn btn-light shadow-sm"><i class="bi bi-house-door"></i></a>
+</div>
+<div class="central-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="bi bi-bookshelf text-success"></i>La mia libreria</h2>
+    </div>
+    <form>
+        <div class="row search-wrapper align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-bold small">Ricerca per </label>
+                <input type="text" name="titoloautore" class="form-control" placeholder="Titolo o autore...">
+            </div>
+            <div class="col-md-4">
+                <select name="categoria">
+                    <option value="" disabled selected>Categoria...</option>
+                    
+                    <optgroup label="Narrativa e Letteratura">
+                        <option value="Narrativa Contemporanea">Narrativa Contemporanea</option>
+                        <option value="Classici">Classici</option>
+                        <option value="Thriller">Gialli e Thriller</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Fantascienza">Fantascienza</option>
+                        <option value="Romance">Rosa / Romance</option>
+                        <option value="Storico">Romanzo Storico</option>
+                    </optgroup>
+
+                    <optgroup label="Saggistica e Studio">
+                        <option value="Biografie">Biografie e Memorie</option>
+                        <option value="Storia">Storia</option>
+                        <option value="Psicologia">Psicologia e Self-help</option>
+                        <option value="Scienza">Scienza e Tecnologia</option>
+                        <option value="Economia">Economia e Finanza</option>
+                        <option value="Cucina">Cucina e Gastronomia</option>
+                    </optgroup>
+
+                    <optgroup label="Ragazzi">
+                        <option value="Young Adult">Young Adult</option>
+                        <option value="Libri per bambini">Libri per bambini</option>
+                        <option value="Fumetti">Fumetti e Manga</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="annoediz" class="form-control" placeholder="Anno edizione">
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <button type="submit" class="bigbutton" formaction="/mylibrary" formmethod="POST"><i class="bi bi-search"></i>Ricerca</button>
+            <button type="submit" class="bigbutton" formaction="/insertbook" formmethod="GET"><i class="bi bi-plus-lg"></i>Inserisci</button>
+        </div>
+    </form>
+    <div class="list-group shadow">
+        <% if (books && books.length > 0) { %>
+            <% books.forEach(libro => { %>
+                <div class="list-group-item book d-flex align-items-center gap-3 p-3">
+                    <img src="http://localhost:8499/<%= libro.copertina || 'default.jpg' %>" class="img-fluid rounded shadow-sm" style="width: 80px; height: 100px; object-fit: cover;">
+                    <div class="flex-grow-1">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1 text-success"><%= libro.titolo %></h5>
+                            <small class="text-muted">Aggiunto il: <%= libro.dataInserimento.toLocaleDateString('it-IT') %></small>
+                        </div>
+                        <p class="mb-1 text-secondary"><%= libro.autore %></p>
+                        <span class="badge bg-success text-dark"><%= libro.categoria %></span>
+                    </div>
+                    <a href="/cancellalibro/<%= libro._id %>" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="alert-info">
+                <p>Nessun libro trovato.</p>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>

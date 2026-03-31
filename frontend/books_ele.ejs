@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ricerca Libri</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap-icons.css">
+    <script src="/js/jquery.min.js"></script>
+    <link href="base.css" rel="stylesheet">
+    <style>
+    .central-container {max-width: 90vw; height: 100%;}
+    .bigbutton { width: 100px; height: 50px; padding: 12px; background-color: #3e7e63; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.2s; display: flex; align-items: center; justify-content: center; text-decoration: none;}
+    .bigbutton:hover {background-color: #2d5d49;}
+    .gobackcontainer {position: fixed; top: 20px; left: 20px; z-index: 1050; }
+    </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const bookModal = document.getElementById('bookModal');
+
+        bookModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const userData = JSON.parse(button.getAttribute('data-user'));
+
+            $('#m_nome').text(userData.nome + ' ' + userData.cognome);
+            $('#m_email').text(userData.mail || '-');
+            $('#m_cell').text(userData.cellulare || '-');
+            $('#m_indirizzo').text(userData.indirizzo || '-');
+            $('#m_citta').text(userData.citta || '-');
+            $('#m_cap').text(userData.cap || '');
+            $('#m_nazione').text(userData.nazione || '');
+        });
+        
+        const scambioModal = document.getElementById('scambioModal');
+        scambioModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const userData = JSON.parse(button.getAttribute('data-user'));
+
+            $('#m_corpolibri').html('<div class="spinner-border text-success" role="status"></div>');
+            
+            fetch('/api/getmybooks/' + userData)
+                .then(response => response.json())
+                .then(ret => {
+                    var htmlLibri = "";
+                    // costruisco l'html da inserire nella lista libri
+                    if (ret.libri && ret.libri.length > 0) {
+                        htmlLibri = "<div class='list-group shadow'>"
+                        ret.libri.forEach(libro => {
+                            htmlLibri += '<div class="list-group-item book d-flex align-items-center gap-3 p-3">';
+                            htmlLibri += '<img src="http://localhost:8499/'+libro.copertina+'" class="img-fluid rounded shadow-sm" style="width: 80px; height: 100px; object-fit: cover;">';
+                            htmlLibri += '<div class="flex-grow-1">';
+                            htmlLibri += '<div class="d-flex w-100 justify-content-between">';
+                            htmlLibri += '<h5 class="mb-1 text-success">'+libro.titolo+'</h5>';
+                            htmlLibri += '<small class="text-muted">Aggiunto il: '+ new Date(libro.dataInserimento).toLocaleDateString('it-IT') +'</small>';
+                            htmlLibri += '</div>';
+                            htmlLibri += '<p class="mb-1 text-secondary">'+libro.autore+'</p>';
+                            htmlLibri += '<span class="badge bg-success text-dark">'+libro.categoria+'</span>';
+                            htmlLibri += '</div>';
+                            htmlLibri += '<div class="d-flex flex-column flex-sm-row align-items-center gap-2 p-2 bg-light border-start">';
+                            htmlLibri += '<button id="scambio_'+libro._id+'" class="bigbutton" style="width: 150px;" onclick="doScambio(\''+libro._id+'\',\''+ret.selectedBook+'\')"><i class="bi bi-arrow-repeat"></i>Richiedi scambio</button>';
+                            htmlLibri += '</div>';
+                            htmlLibri += '</div>';
+                        });
+                        htmlLibri += '</div>';
+                    } else {
+                        htmlLibri = '<br/><p class="text-muted">Nessun libro posseduto.</p>';
+                    }
+                    $('#m_corpolibri').html(htmlLibri);
+                });
+        });
+
+        const consulModal = document.getElementById('consulModal');
+        consulModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const userData = JSON.parse(button.getAttribute('data-user'));
+
+            htmlMessagio = '<form action="/creaconsultazione/'+userData+'" method="POST">';
+            htmlMessagio += '<div class="mb-3">';
+            htmlMessagio += '<textarea class="form-control" name="messaggio" rows="4" placeholder="Vorrei consultare questo libro"></textarea>';
+            htmlMessagio += '</div>';
+            htmlMessagio += '<div class="d-grid d-md-flex justify-content-md-center">';
+            htmlMessagio += '<button type="submit" class="bigbutton" style="width: 200px; height: 100px;">Conferma richiesta</button>';
+            htmlMessagio += '</div>';
+            htmlMessagio += '</form>';
+
+            $('#m_messaggio').html(htmlMessagio);
+        });
+    });
+
+    async function doScambio(id1, id2){
+        $('#scambio_'+id1).prop('disabled', true);
+        $('#scambio_'+id1).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Attendere...');
+        const response = await fetch('/api/scambia', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                idLibroOfferto: id1,
+                idLibroDesiderato: id2,
+                messaggio: $('#messaggio').val()
+            })
+        });
+
+        const data = await response.json();
+        switch (data.msg) {
+            case 'exists':
+                message = "Esiste già una richiesta a tuo nome per questo libro";
+            break;
+            case 'scambiook':
+                message = "La richiesta di scambio è andata a buon fine";
+                $('#scambioModal').modal('hide');
+            break;
+        }
+
+        alert(message);
+        $('#scambio_'+id1).html('<i class="bi bi-arrow-repeat"></i>Richiedi scambio');
+        $('#scambio_'+id1).prop('disabled', false);
+    }
+
+    $(document).ready(function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorCode = urlParams.get('error');
+        var message = "";
+
+        if(errorCode != null){
+            switch (errorCode) {
+                case 'consok':
+                    message = "La richiesta di consultazione è andata a buon fine";
+                break;
+
+                case 'existscons':
+                    message = "Hai già richiesto una consultazione per questo libro";
+                break;
+
+                default:
+                    message = "Qualcosa è andato storto, contattare l'amministratore di sistema";
+                break;
+            }
+        }
+
+        if(message != "") alert(message);
+    });
+    </script>
+</head>
+<body>
+<div class="gobackcontainer">
+    <a href="/dashboard" class="btn btn-light shadow-sm"><i class="bi bi-house-door"></i></a>
+</div>
+<div class="central-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="bi bi-search text-success"></i>Elenco Libri</h2>
+    </div>
+    <form>
+        <div class="row search-wrapper align-items-end">
+            <div class="col-md-2">
+                <label class="form-label fw-bold small">Ricerca per </label>
+                <input type="text" name="titolo" class="form-control" placeholder="Titolo...">
+            </div>
+            <div class="col-md-2">
+                <input type="text" name="autore" class="form-control" placeholder="Autore...">
+            </div>
+            <div class="col-md-2">
+                <input type="text" name="annoediz" class="form-control" placeholder="Anno Edizione...">
+            </div>
+            <div class="col-md-2">
+                <select name="categoria">
+                    <option value="" disabled selected>Categoria...</option>
+                    
+                    <optgroup label="Narrativa e Letteratura">
+                        <option value="Narrativa Contemporanea">Narrativa Contemporanea</option>
+                        <option value="Classici">Classici</option>
+                        <option value="Thriller">Gialli e Thriller</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Fantascienza">Fantascienza</option>
+                        <option value="Romance">Rosa / Romance</option>
+                        <option value="Storico">Romanzo Storico</option>
+                    </optgroup>
+
+                    <optgroup label="Saggistica e Studio">
+                        <option value="Biografie">Biografie e Memorie</option>
+                        <option value="Storia">Storia</option>
+                        <option value="Psicologia">Psicologia e Self-help</option>
+                        <option value="Scienza">Scienza e Tecnologia</option>
+                        <option value="Economia">Economia e Finanza</option>
+                        <option value="Cucina">Cucina e Gastronomia</option>
+                    </optgroup>
+
+                    <optgroup label="Ragazzi">
+                        <option value="Young Adult">Young Adult</option>
+                        <option value="Libri per bambini">Libri per bambini</option>
+                        <option value="Fumetti">Fumetti e Manga</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="proprietario">
+                    <option value="" disabled selected>Proprietario...</option>
+                    <% users.forEach(user => { %>
+                        <option value="<%= user._id %>"><%= user.nome %> <%= user.cognome %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="text" name="distanza" class="form-control" placeholder="Distanza dalla tua libreria (km)...">
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <button type="submit" class="bigbutton" formaction="/searchbook" formmethod="POST"><i class="bi bi-search"></i>Ricerca</button>
+        </div>
+    </form>
+    <br/>
+    <div class="list-group shadow">
+        <% if (books && books.length > 0) { %>
+            <% books.forEach(book => { %>
+                <div class="list-group-item p-0 d-flex align-items-stretch overflow-hidden">
+                    <button class="btn btn-light list-group-item-action d-flex align-items-center gap-3 p-3 border-0" 
+                            data-bs-toggle="modal"
+                            data-bs-target="#bookModal"
+                            data-user='<%= JSON.stringify(book) %>'>
+                        <img src="http://localhost:8499/<%= book.info_libro.copertina || 'default.jpg' %>" class="img-fluid rounded shadow-sm" style="width: 80px; height: 100px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1 text-success"><%= book.info_libro.titolo %></h5>
+                                <small class="text-muted">Aggiunto il: <%= book.info_libro.dataInserimento.toLocaleDateString('it-IT') %> - <%= (book.distanza / 1000).toFixed(2) %> km</small>
+                            </div>
+                            <p class="mb-1 text-secondary"><%= book.info_libro.autore %></p>
+                            <span class="badge bg-success text-dark"><%= book.info_libro.categoria %></span>
+                        </div>
+                        <span class="badge bg-secondary rounded-pill">Dettagli proprietario</span>
+                    </button>
+                    <div class="d-flex flex-column flex-sm-row align-items-center gap-2 p-2 bg-light border-start">
+                        <button class="bigbutton" style="width: 150px;" data-bs-toggle="modal" data-bs-target="#scambioModal" data-user='<%= JSON.stringify(book.info_libro._id) %>'><i class="bi bi-arrow-repeat"></i>Scambio</button>
+                        <button class="bigbutton" style="width: 150px;" data-bs-toggle="modal" data-bs-target="#consulModal" data-user='<%= JSON.stringify(book.info_libro._id) %>'><i class="bi bi-book"></i>Consultazione</button>
+                    </div>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="alert-info">
+                <p>Nessun libro trovato.</p>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<div class="modal fade" id="bookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="m_nome"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><b>Email:</b> <span id="m_email"></span></p>
+                <p><b>Cell:</b> <span id="m_cell"></span></p>
+                <p><b>Indirizzo:</b> <span id="m_indirizzo"></span></p>
+                <p><b>Città:</b> <span id="m_citta"></span> (<span id="m_cap"></span>) - <span id="m_nazione"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="scambioModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Scegli un tuo libro per la richiesta di scambio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <textarea class="form-control" id="messaggio" name="messaggio" rows="2" placeholder="Vorrei effettuare uno scambio con il tuo libro!"></textarea><br/>
+                <div id="m_corpolibri"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="consulModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aggiungi un messaggio per la tua richiesta di consultazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="m_messaggio"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

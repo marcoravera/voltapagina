@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>VoltaPagina</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bootstrap-icons.css">
+    <link rel="stylesheet" href="base.css">
+    <script src="/js/jquery.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorCode = urlParams.get('error');
+        var message = "";
+
+        if(errorCode != null){
+            switch (errorCode) {
+                case 'auth_failed':
+                    message = "Credenziali errate";
+                break;
+
+                case 'signinok':
+                    message = "Registrazione avvenuta con successo";
+                break;
+
+                default:
+                    message = "Si è verificato un errore.";
+                break;
+            }
+
+            alert(message);
+        }
+    });
+    </script>
+</head>
+<body style="align-items: center; height: 100vh;">
+    <div class="central-container">
+        <form action="/accedi" method="POST">
+            <img id="logo" style="margin-bottom: 25px;" src="logo.jpeg"></img>
+            <div class="field">
+                <label>Username</label>
+                <input type="text" name="username" id="username" placeholder="Username" required>
+            </div>
+
+            <div class="field">
+                <label>Password</label>
+                <input type="password" name="password" id="password" placeholder="********" required>
+            </div>
+
+            <button type="submit" class="btnSubmit">Accedi</button>
+            <button formnovalidate type="submit" style="color: #3e7e63; text-align: center; width: 100%;" class="btn btn-link" formaction="/signin" formmethod="GET">Registrati</button>
+        </form>
+    </div>
+</body>
+</html>

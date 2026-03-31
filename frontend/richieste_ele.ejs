@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><% if(tipo == "scambio") { %>
+            I miei Scambi
+        <% } else { %>
+            Le mie consultazioni
+        <% } %></title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bootstrap-icons.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <link href="base.css" rel="stylesheet">
+    <style>
+        .central-container {max-width: 90vw; height: 100%;}
+        .acceptbutton { width: 120px; height: 50px; padding: 12px; background-color: #3e7e63; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.2s;}
+        .acceptbutton:hover {background-color: #2d5d49;}
+        .cancelbutton { width: 120px; height: 50px; padding: 12px; background-color: #a7a7a7; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.2s;}
+        .cancelbutton:hover {background-color: #5c5c5c;}
+        .refusebutton { width: 120px; height: 50px; padding: 12px; background-color: #ff1e1e; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.2s;}
+        .refusebutton:hover {background-color: #a80000;}
+        .chatbutton { width: 120px; height: 50px; padding: 12px; background-color: #f39c12; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.2s;}
+        .chatbutton:hover {background-color: #bb780e;}
+        .gobackcontainer {position: fixed; top: 20px; left: 20px; z-index: 1050; }
+        .bdg-nuovo {background-color: #ffd61e;}
+        .bdg-accettato {background-color: #3e7e63;}
+        .bdg-rifiutato {background-color: #ff1e1e;}
+        .bdg-annullato {background-color: #a7a7a7;}
+        .nav-link {background-color: white !important; color: #3e7e63 !important;}
+        .nav-link.active {background-color: #3e7e63 !important; color: white !important; border-color: #3e7e63 !important;}
+    </style>
+    <script>
+    $(document).ready(function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const newstate = urlParams.get('newstate');
+        const error = urlParams.get('error');
+        var message = "";
+        
+        // gestione cambio di stato
+        if(newstate != null){
+            <% if(tipo == "scambio") { %>
+            message = "Lo scambio è stato " + newstate;
+            <% } else { %>
+            message = "La consultazione è passata in stato " + newstate;
+            <% } %>
+            if(newstate == "ko"){
+                message = "Qualcosa è andato storto, contattare l'amministratore di sistema";
+            }
+        }
+
+        // gestione messaggi di errore
+        switch (error) {
+            case 'chaterr':
+                message = "Qualcosa è andato storto, contattare l'amministratore di sistema";
+            break;
+        }
+
+        if(message != "") alert(message);
+    });
+    </script>
+</head>
+<body>
+<div class="gobackcontainer">
+    <a href="/dashboard" class="btn btn-light shadow-sm"><i class="bi bi-house-door"></i></a>
+</div>
+<div class="central-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="bi bi-arrow-left-right text-success"></i>
+        <% if(tipo == "scambio") { %>
+            I miei Scambi
+        <% } else { %>
+            Le mie consultazioni
+        <% } %>
+        </h2>
+    </div>
+
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="received-tab" data-bs-toggle="tab" data-bs-target="#received" type="button">
+                Richieste Ricevute <span class="badge bg-danger ms-1"><%= requests.length %></span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent" type="button">
+                Richieste Inviate <span class="badge bg-danger ms-1"><%= reqsent.length %></span>
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="received" role="tabpanel">
+            <div class="list-group shadow-sm">
+            <% if (requests && requests.length > 0) { %>
+                <% requests.forEach(richiesta => { %>
+                    <form>
+                        <div class="list-group-item request-card d-flex align-items-center gap-3 p-3 mb-2 bg-white rounded">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="mb-1">Richiesta da <strong><%= richiesta.richiedente.username %></strong></h6>
+                                    <small class="text-muted"><%= richiesta.dataInserimento.toLocaleDateString('it-IT') %></small>
+                                    <span class="badge bdg-<%= richiesta.stato %>"><%= richiesta.stato.toUpperCase() %></span>
+                                </div><br/>
+                                <p class="mb-4">
+                                    Dai: <span class="badge bg-light text-dark border"><%= richiesta.libroDaRicevere.titolo %></span>
+                                    <% if (tipo == 'scambio') { %>
+                                    <i class="bi bi-arrow-repeat"></i>
+                                    In cambio di: <span class="badge bg-light text-dark border"><%= richiesta.libroDaDare.titolo %></span> 
+                                    <% } %>
+                                </p>
+                                <div class="p-2 bg-light rounded small text-secondary italic">
+                                    <%= richiesta.messaggio %>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                                <% if (richiesta.stato == 'nuovo') { %>
+                                <button class="acceptbutton" formaction="/accept/<%= richiesta._id %>" formmethod="POST" onclick="return confirm('Confermi?');">ACCETTA</button>
+                                <button class="refusebutton" formaction="/refuse/<%= richiesta._id %>" formmethod="POST" onclick="return confirm('Confermi?');">RIFIUTA</button>
+                                <% } %>
+                                <button class="chatbutton" formaction="/chat/<%= richiesta._id %>" formmethod="GET">CONTATTA</button>
+                            </div>
+                        </div>
+                    </form>
+                <% }) %>
+            <% } else { %>
+                <div class="alert-info"><p>Nessuna richiesta in corso</p></div>
+            <% } %>
+            </div>
+            </div>
+
+            <div class="tab-pane fade" id="sent" role="tabpanel">
+            <div class="list-group shadow-sm">
+            <% if (reqsent && reqsent.length > 0) { %>
+                <% reqsent.forEach(richiesta => { %>
+                    <form>
+                        <div class="list-group-item request-card d-flex align-items-center gap-3 p-3 mb-2 bg-white rounded">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="mb-1">Richiesta per <strong><%= richiesta.destinatario.username %></strong></h6>
+                                    <small class="text-muted"><%= richiesta.dataInserimento.toLocaleDateString('it-IT') %></small>
+                                    <span class="badge bdg-<%= richiesta.stato %>"><%= richiesta.stato.toUpperCase() %></span>
+                                </div><br/>
+                                <p class="mb-4">
+                                    Ricevi: <span class="badge bg-light text-dark border"><%= richiesta.libroDaRicevere.titolo %></span> 
+                                    <% if (tipo == 'scambio') { %>
+                                    <i class="bi bi-arrow-repeat"></i>
+                                    In cambio di: <span class="badge bg-light text-dark border"><%= richiesta.libroDaDare.titolo %></span> 
+                                    <% } %>
+                                </p>
+                                <div class="p-2 bg-light rounded small text-secondary italic">
+                                    <%= richiesta.messaggio %>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                                <% if (richiesta.stato == 'nuovo') { %>
+                                <button class="cancelbutton" formaction="/cancel/<%= richiesta._id %>" formmethod="POST" onclick="return confirm('Confermi di voler annullare lo scambio?');">ANNULLA</button>
+                                <% } %>
+                                <button class="chatbutton" formaction="/chat/<%= richiesta._id %>" formmethod="GET">CONTATTA</button>
+                            </div>
+                        </div>
+                    </form>
+                <% }) %>
+            <% } else { %>
+                <div class="alert-info"><p>Nessuna richiesta in corso</p></div>
+            <% } %>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

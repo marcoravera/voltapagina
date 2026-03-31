@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>VoltaPagina</title>
+    <!-- aggiunta dei file css necessari alla pagina (bootstrap + css generico dell'applicativo)-->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bootstrap-icons.css">
+    <link rel="stylesheet" href="base.css">
+
+    <!-- aggiunta dei files javscript necessari alla pagina -->
+    <script src="/js/jquery.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        // recupero i parametri dall'url
+        const urlParams = new URLSearchParams(window.location.search);
+        // recupero il parametro error (presente se ci sono errori lato server)
+        const errorCode = urlParams.get('error');
+
+        var message = "";
+        if(errorCode != null){
+            switch (errorCode) {
+                case 'exists':
+                    message = "Libro già presente nella tua libreria";
+                break;
+                default:
+                    message = "Si è verificato un errore.";
+                break;
+            }
+
+            alert(message);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
+    </script>
+</head>
+<body>
+    <div class="central-container">
+        <h2><i class="bi bi-book"></i> - Inserimento nuovo libro</i></h2>
+        <form action="/caricalibro" method="POST" enctype="multipart/form-data">
+            <div>
+                <label>Titolo:</label>
+                <input type="text" name="titolo" placeholder="Titolo" required>
+            <div>
+                <label>Autore:</label>
+                <input type="text" name="autore" placeholder="Autore" required>
+            </div>
+            <div>
+                <label>Categoria:</label>
+                <select name="categoria">
+                    <option value="" disabled selected>Scegli una categoria...</option>
+                    
+                    <optgroup label="Narrativa e Letteratura">
+                        <option value="Narrativa Contemporanea">Narrativa Contemporanea</option>
+                        <option value="Classici">Classici</option>
+                        <option value="Thriller">Gialli e Thriller</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Fantascienza">Fantascienza</option>
+                        <option value="Romance">Rosa / Romance</option>
+                        <option value="Storico">Romanzo Storico</option>
+                    </optgroup>
+
+                    <optgroup label="Saggistica e Studio">
+                        <option value="Biografie">Biografie e Memorie</option>
+                        <option value="Storia">Storia</option>
+                        <option value="Psicologia">Psicologia e Self-help</option>
+                        <option value="Scienza">Scienza e Tecnologia</option>
+                        <option value="Economia">Economia e Finanza</option>
+                        <option value="Cucina">Cucina e Gastronomia</option>
+                    </optgroup>
+
+                    <optgroup label="Ragazzi">
+                        <option value="Young Adult">Young Adult</option>
+                        <option value="Libri per bambini">Libri per bambini</option>
+                        <option value="Fumetti">Fumetti e Manga</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div>
+                <label>Isbn:</label>
+                <input type="text" name="isbn" placeholder="Isbn">
+            </div>
+            <div>
+                <label>Anno Edizione:</label>
+                <input type="number" name="annoedizione" max="2099" step="1" value="2026">
+            </div>
+            <div>
+                <label>Copertina:</label>
+                <input type="file" name="copertina">
+            </div>
+            <button class="btnSubmit" type="submit">Inserisci</button>
+            <button formnovalidate type="submit" style="color: #3e7e63; text-align: center; width: 100%;" class="btn btn-link" formaction="/mylibrary" formmethod="GET">Torna Indietro</a>
+        </form>
+    </div>
+</body>
+</html>

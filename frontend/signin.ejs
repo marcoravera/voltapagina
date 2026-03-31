@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>VoltaPagina</title>
+    <!-- aggiunta dei file css necessari alla pagina (bootstrap + css generico dell'applicativo)-->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bootstrap-icons.css">
+    <link rel="stylesheet" href="base.css">
+
+    <!-- aggiunta dei files javscript necessari alla pagina -->
+    <script src="/js/jquery.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        // recupero i parametri dall'url
+        const urlParams = new URLSearchParams(window.location.search);
+        // recupero il parametro error (presente se ci sono errori lato server)
+        const errorCode = urlParams.get('error');
+
+        var message = "";
+        if(errorCode != null){
+            switch (errorCode) {
+                case 'exists':
+                    message = "Username già presente a portale";
+                break;
+
+                case 'pwd':
+                    message = "Le password non coincidono";
+                break;
+
+                default:
+                    message = "Si è verificato un errore.";
+                break;
+            }
+
+            alert(message);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
+    </script>
+</head>
+<body>
+    <div class="central-container">
+        <h2>Registrazione</h2>
+        <form action="/registrati" method="POST">
+                <label>Username:</label>
+                <input type="text" name="username" placeholder="Username" required>
+            <div>
+                <label>Nome:</label>
+                <input type="text" name="nome" placeholder="Nome" required>
+            </div>
+            <div>
+                <label>Cognome:</label>
+                <input type="text" name="cognome" placeholder="Cognome" required>
+            </div>
+            <div>
+                <label>E-Mail:</label>
+                <input type="text" name="mail" placeholder="E-Mail" required>
+            </div>
+            <div>
+                <label>Cellulare:</label>
+                <input type="text" name="cellulare" placeholder="Cellulare" required>
+            </div>
+            <div>
+                <label>Indirizzo:</label>
+                <input type="text" name="indirizzo" placeholder="Indirizzo" required>
+            </div>
+            <div>
+                <label>Città:</label>
+                <input type="text" name="citta" placeholder="Città" required>
+            </div>
+            <div>
+                <label>CAP:</label>
+                <input type="text" name="cap" placeholder="CAP" required>
+            </div>
+            <div>
+                <label>Nazione:</label>
+                <select name="nazione" id="nazione">
+                    <option value="">-- Seleziona --</option>
+                    <option value="AL">Albania</option>
+                    <option value="AD">Andorra</option>
+                    <option value="AT">Austria</option>
+                    <option value="BE">Belgio</option>
+                    <option value="BY">Bielorussia</option>
+                    <option value="BA">Bosnia ed Erzegovina</option>
+                    <option value="BG">Bulgaria</option>
+                    <option value="CY">Cipro</option>
+                    <option value="VA">Città del Vaticano</option>
+                    <option value="HR">Croazia</option>
+                    <option value="DK">Danimarca</option>
+                    <option value="EE">Estonia</option>
+                    <option value="FI">Finlandia</option>
+                    <option value="FR">Francia</option>
+                    <option value="DE">Germania</option>
+                    <option value="GR">Grecia</option>
+                    <option value="IE">Irlanda</option>
+                    <option value="IS">Islanda</option>
+                    <option value="IT">Italia</option>
+                    <option value="XK">Kosovo</option> <option value="LV">Lettonia</option>
+                    <option value="LI">Liechtenstein</option>
+                    <option value="LT">Lituania</option>
+                    <option value="LU">Lussemburgo</option>
+                    <option value="MK">Macedonia del Nord</option>
+                    <option value="MT">Malta</option>
+                    <option value="MD">Moldavia</option>
+                    <option value="MC">Monaco</option>
+                    <option value="ME">Montenegro</option>
+                    <option value="NO">Norvegia</option>
+                    <option value="NL">Paesi Bassi</option>
+                    <option value="PL">Polonia</option>
+                    <option value="PT">Portogallo</option>
+                    <option value="GB">Regno Unito</option>
+                    <option value="CZ">Repubblica Ceca</option>
+                    <option value="RO">Romania</option>
+                    <option value="RU">Russia</option>
+                    <option value="SM">San Marino</option>
+                    <option value="RS">Serbia</option>
+                    <option value="SK">Slovacchia</option>
+                    <option value="SI">Slovenia</option>
+                    <option value="ES">Spagna</option>
+                    <option value="SE">Svezia</option>
+                    <option value="CH">Svizzera</option>
+                    <option value="UA">Ucraina</option>
+                    <option value="HU">Ungheria</option>
+                </select>
+            </div>
+            <div>
+                <label>Password:</label>
+                <input type="password" id="password" name="password" placeholder="********" required>
+            </div>
+            <div>
+                <label>Conferma Password:</label>
+                <input type="password" id="confpassword" name="confpassword" placeholder="********" required>
+            </div>
+            <button class="btnSubmit" type="submit">Registrati</button>
+            <button formnovalidate type="submit" style="color: #3e7e63; text-align: center; width: 100%;" class="btn btn-link" formaction="/" formmethod="GET">Torna Indietro</a>
+        </form>
+    </div>
+</body>
+</html>

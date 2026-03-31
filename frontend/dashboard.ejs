@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>VoltaPagina</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bootstrap-icons.css">
+    <link rel="stylesheet" href="base.css">
+    <script src="/js/jquery.min.js"></script>
+    
+    <style>
+        .bigbutton {
+            width: 100%;
+            height: 200px;
+            padding: 12px;
+            background-color: #3e7e63;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .bigbutton:hover {
+            background-color: #2d5d49;
+        }
+        .logout-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+    </style>
+    <script>
+    $(document).ready(function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorCode = urlParams.get('error');
+        var message = "";
+
+        if(errorCode != null){
+            switch (errorCode) {
+                case 'errchat':
+                    message = "Hai provato ad accedere ad una chat non tua";
+                break;
+                default:
+                    message = "Qualcosa è andato storto, contattare l'amministratore di sistema";
+                break;
+            }
+        }
+
+        if(message != "") alert(message);
+    });
+    </script>
+</head>
+<body>
+    <div class="logout-container">
+        <a href="/logout" class="btn btn-light shadow-sm">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    </div>
+
+    <div class="container vh-100 d-flex align-items-center justify-content-center">
+        <div class="central-container w-100" style="max-width: 1000px;">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <img id="logo" style="margin-bottom: 25px;" src="logo.jpeg"></img>
+                </div>
+                <div class="col-md-8">
+                    <form>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <button type="submit" class="bigbutton" formaction="/mylibrary" formmethod="GET">
+                                    <i class="bi bi-bookshelf" style="font-size: 2rem;"></i><br/>
+                                    La mia libreria
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="bigbutton" formaction="/searchbook" formmethod="GET">
+                                    <i class="bi bi-search" style="font-size: 2rem;"></i><br/>
+                                    Cerca un libro
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="bigbutton" formaction="/searchuser" formmethod="GET">
+                                    <i class="bi bi-person" style="font-size: 2rem;"></i><br/>
+                                    Cerca un utente
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="bigbutton" formaction="/map" formmethod="GET">
+                                    <i class="bi bi-map" style="font-size: 2rem;"></i><br/>
+                                    Guarda sulla mappa
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="bigbutton" formaction="/richieste" formmethod="GET">
+                                    <i class="bi bi-arrow-left-right" style="font-size: 2rem;"></i><br/>
+                                    Gestisci le richieste di scambio
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="bigbutton" formaction="/consultazioni" formmethod="GET">
+                                    <i class="bi bi-book" style="font-size: 2rem;"></i><br/>
+                                    Gestisci le richieste di consultazione
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

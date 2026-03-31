@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ricerca Utenti</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap-icons.css">
+    <script src="/js/jquery.min.js"></script>
+    <link href="base.css" rel="stylesheet">
+    <style>
+        .central-container {max-width: 90vw; height: 100%;}
+        .bigbutton { width: 100px; height: 50px; padding: 12px; background-color: #3e7e63; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.2s;}
+        .bigbutton:hover {background-color: #2d5d49;}
+        .gobackcontainer {position: fixed; top: 20px; left: 20px; z-index: 1050;}
+    </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const userModal = document.getElementById('userModal');
+
+        userModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const userData = JSON.parse(button.getAttribute('data-user'));
+
+            $('#m_nome').text(userData.nome + ' ' + userData.cognome);
+            $('#m_email').text(userData.mail || '-');
+            $('#m_cell').text(userData.cellulare || '-');
+            $('#m_indirizzo').text(userData.indirizzo || '-');
+            $('#m_citta').text(userData.citta || '-');
+            $('#m_cap').text(userData.cap || '');
+            $('#m_nazione').text(userData.nazione || '');
+            $('#m_corpolibri').text('');
+            $("#viewLibri").click(function(){
+                $('#m_corpolibri').html('<div class="spinner-border text-success" role="status"></div>');
+                fetch('/api/userbooks/' + userData._id)
+                    .then(response => response.json())
+                    .then(libri => {
+                        console.log(libri);
+                        var htmlLibri = "";
+                        // costruisco l'html da inserire nella lista libri
+                        if (libri && libri.length > 0) {
+                            htmlLibri = "<div class='list-group shadow'>"
+                            libri.forEach(libro => {
+                                htmlLibri += '<div class="list-group-item book d-flex align-items-center gap-3 p-3">';
+                                htmlLibri += '<img src="http://localhost:8499/'+libro.copertina+'" class="img-fluid rounded shadow-sm" style="width: 80px; height: 100px; object-fit: cover;">';
+                                htmlLibri += '<div class="flex-grow-1">';
+                                htmlLibri += '<div class="d-flex w-100 justify-content-between">';
+                                htmlLibri += '<h5 class="mb-1 text-success">'+libro.titolo+'</h5>';
+                                htmlLibri += '<small class="text-muted">Aggiunto il: '+ new Date(libro.dataInserimento).toLocaleDateString('it-IT') +'</small>';
+                                htmlLibri += '</div>';
+                                htmlLibri += '<p class="mb-1 text-secondary">'+libro.autore+'</p>';
+                                htmlLibri += '<span class="badge bg-success text-dark">'+libro.categoria+'</span>';
+                                htmlLibri += '</div></div>';
+                            });
+                            htmlLibri += '</div>';
+                        } else {
+                            htmlLibri = '<br/><p class="text-muted">Nessun libro posseduto.</p>';
+                        }
+                        $('#m_corpolibri').html(htmlLibri);
+                    });
+            });
+        });
+    });
+    </script>
+</head>
+<body>
+<div class="gobackcontainer">
+    <a href="/dashboard" class="btn btn-light shadow-sm"><i class="bi bi-house-door"></i></a>
+</div>
+<div class="central-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="bi bi-person text-success"></i>Elenco Utenti</h2>
+    </div>
+    <form>
+        <div class="row search-wrapper align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-bold small">Ricerca per </label>
+                <input type="text" name="nomecognome" class="form-control" placeholder="Username, nome o cognome...">
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="distanza" class="form-control" placeholder="Distanza dalla tua libreria (km)...">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="bigbutton" formaction="/searchuser" formmethod="POST"><i class="bi bi-search"></i>Ricerca</button>
+            </div>
+        </div>
+    </form>
+    <br/>
+    <div class="list-group shadow">
+        <% if (users && users.length > 0) { %>
+            <% users.forEach(user => { %>
+                <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center "
+                        data-bs-toggle="modal" 
+                        data-bs-target="#userModal"
+                        data-user='<%= JSON.stringify(user) %>'>
+                    <span><b><%= user.nome %> <%= user.cognome %></b></span>
+                    <span class="badge bg-secondary rounded-pill">Dettagli</span>
+                </button>
+            <% }) %>
+        <% } else { %>
+            <div class="alert-info">
+                <p>Nessun utente trovato.</p>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="m_nome"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><b>Email:</b> <span id="m_email"></span></p>
+                <p><b>Cell:</b> <span id="m_cell"></span></p>
+                <p><b>Indirizzo:</b> <span id="m_indirizzo"></span></p>
+                <p><b>Città:</b> <span id="m_citta"></span> (<span id="m_cap"></span>) - <span id="m_nazione"></span></p>
+                <hr>
+                <div class="text-center"><button class="bigbutton text-center" id="viewLibri">Vedi libri</button></div><br/></div>
+                <div id="m_corpolibri"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
