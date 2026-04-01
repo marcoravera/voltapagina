@@ -234,6 +234,7 @@
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1 text-success"><%= book.info_libro.titolo %></h5>
                                 <small class="text-muted">Aggiunto il: <%= book.info_libro.dataInserimento.toLocaleDateString('it-IT') %> - <%= (book.distanza / 1000).toFixed(2) %> km</small>
+                                <small class="text-muted">Visualizzazioni: <%= book.info_libro.visualizzazioni %></small>
                             </div>
                             <p class="mb-1 text-secondary"><%= book.info_libro.autore %></p>
                             <span class="badge bg-success text-dark"><%= book.info_libro.categoria %></span>
