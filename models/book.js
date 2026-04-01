@@ -8,6 +8,8 @@ const libroSchema = new mongoose.Schema({
     annoEdizione: { type: Number, required: true },
     dataInserimento: { type: Date, default: Date.now },
     copertina: { type: String },
+    visualizzazioni: { type: Number, default: 0},
+    richieste: { type: Number, default: 0},
     proprietario: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'User',
