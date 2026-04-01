@@ -32,6 +32,25 @@
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     });
+
+    function mostraAnteprima(input) {
+        const previewContainer = $('#preview-container');
+        const imagePreview = $('#preview');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                imagePreview.attr('src', e.target.result);
+                previewContainer.show();
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            previewContainer.hide();
+            imagePreview.attr('src', '');
+        }
+    }
     </script>
 </head>
 <body>
@@ -86,7 +105,10 @@
             </div>
             <div>
                 <label>Copertina:</label>
-                <input type="file" name="copertina">
+                <div id="preview-container" style="margin-top: 10px; display: none;">
+                    <img id="preview" src="" style="max-width: 200px; height: auto; border: 1px solid #ccc;">
+                </div>
+                <input type="file" name="copertina" accept="image/jpeg, image/png" onchange="mostraAnteprima(this)">
             </div>
             <button class="btnSubmit" type="submit">Inserisci</button>
             <button formnovalidate type="submit" style="color: #3e7e63; text-align: center; width: 100%;" class="btn btn-link" formaction="/mylibrary" formmethod="GET">Torna Indietro</a>
