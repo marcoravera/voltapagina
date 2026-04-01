@@ -23,6 +23,11 @@
             const button = event.relatedTarget;
             const userData = JSON.parse(button.getAttribute('data-user'));
 
+            fetch('/visualizza/:' + userData._id, {
+                method: 'POST',
+                keepalive: true 
+            });
+
             $('#m_nome').text(userData.nome + ' ' + userData.cognome);
             $('#m_email').text(userData.mail || '-');
             $('#m_cell').text(userData.cellulare || '-');
@@ -101,6 +106,11 @@
                 idLibroDesiderato: id2,
                 messaggio: $('#messaggio').val()
             })
+        });
+
+        fetch('/scambia/:' + id2, {
+            method: 'POST',
+            keepalive: true 
         });
 
         const data = await response.json();
