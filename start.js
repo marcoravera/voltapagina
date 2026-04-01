@@ -597,6 +597,28 @@ app.post('/chat/:richiestaId/invia', async (req, res) => {
   }
 });
 
+app.post('/visualizza/:id', async (req, res) => {
+    try {
+        await Book.findByIdAndUpdate(
+            req.params.id,
+            { $inc: { visualizzazioni: 1 } }
+        );
+    } catch (err) {
+        console.log(err);
+    }
+});
+
+app.post('/richiedi/:id', async (req, res) => {
+    try {
+        await Book.findByIdAndUpdate(
+            req.params.id,
+            { $inc: { richieste: 1 } }
+        );
+    } catch (err) {
+        console.log(err);
+    }
+});
+
 // rendo il server raggiungibile sulla porta 8499
 app.listen(8499, () => {
     console.log('In ascolto sulla porta 8499');
