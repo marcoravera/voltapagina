@@ -101,10 +101,7 @@ app.post('/searchuser', async (req, res) => {
     if(req.body.distanza){
         ricerca.location = {
             $near: {
-                $geometry: {
-                    type: "Point",
-                    coordinates: [userLogged.location.coordinates[1], userLogged.location.coordinates[0]]
-                },
+                $geometry: userLogged.location,
                 $maxDistance: parseInt(req.body.distanza) * 1000 // la ricerca funziona in metri
             }
         }
