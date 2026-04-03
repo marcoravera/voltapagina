@@ -12,7 +12,7 @@ const libroSchema = new mongoose.Schema({
     richieste: { type: Number, default: 0},
     proprietario: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'User',
+        ref: 'user',
         required: true 
     }
 });
